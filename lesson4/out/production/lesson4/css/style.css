@@ -1,0 +1,16 @@
+.root{
+-fx-font-size: 16;
+}
+
+#textArea{
+    -fx-background-color: #e6e6fa;
+    -fx-control-inner-background: #e6e6fa;
+}
+
+.button{
+    -fx-background-color: #98fb98;
+}
+
+.button:hover {
+    -fx-background-color: #228b22;
+}
