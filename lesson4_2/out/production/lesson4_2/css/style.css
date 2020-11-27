@@ -1,0 +1,13 @@
+.root {
+    -fx-font-size: 19;
+    -fx-background-color: #800000;
+}
+
+.button{
+    -fx-background-color: #FFEBCD;
+    -fx-border-color: #8B4513;
+}
+
+#operBtn:hover {
+    -fx-background-color: #32CD32;
+}
