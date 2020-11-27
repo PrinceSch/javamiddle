@@ -2,56 +2,55 @@ package lesson6;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
 
     static final String IP_ADDRESS = "localhost";
-    static final int PORT = 8190;
+    static final int PORT = Server.PORT;
 
-    public static void main(String[] args) throws InterruptedException{
+    public static void main(String[] args){
 
-        try (Socket socket = new Socket(IP_ADDRESS,PORT);
-             DataInputStream in = new DataInputStream(socket.getInputStream())){
-            System.out.println("You are connected");
+        Socket socket = null;
+        Scanner scanner = new Scanner(System.in);
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true){
-                            String str = in.readUTF();
-                            if (str.equals("/end")) {
-                                System.out.println("You were quit");
-                                break;
-                            }
-                            Server.serverPrintMessage(str, socket);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+        try {
+            socket = new Socket(IP_ADDRESS,PORT);
+            System.out.println("Connected to server "+ socket.getRemoteSocketAddress());
+            DataInputStream in = new DataInputStream(socket.getInputStream());
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+            Thread clientReader = new Thread(() -> {
+                try {
+                    while (true) {
+                        out.writeUTF(scanner.nextLine());
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }).start();
+            });
+            clientReader.setDaemon(true);
+            clientReader.start();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    static void clientPrintMessage (String msg, Socket socket){
-        try (DataOutputStream output = new DataOutputStream(socket.getOutputStream())){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        output.writeUTF("user message: " + msg);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            while (true) {
+                String str = in.readUTF();
+                if (str.equals("/quit")) {
+                    System.out.println("User left server");
+                    out.writeUTF("/quit");
+                    break;
+                } else {
+                    System.out.println("Server: " + str);
                 }
-            }).start();
-        } catch (IOException e) {
+            }
+        }catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+               socket.close();
+            } catch (IOException | NullPointerException e) {
+                e.printStackTrace();
+            }
         }
-    }
 
+    }
 }
