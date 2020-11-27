@@ -9,29 +9,47 @@ public class Client {
     static final int PORT = 8190;
 
     public static void main(String[] args) throws InterruptedException{
+
         try (Socket socket = new Socket(IP_ADDRESS,PORT);
-             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-             DataOutputStream oos = new DataOutputStream(socket.getOutputStream());
-             DataInputStream ois = new DataInputStream(socket.getInputStream())){
+             DataInputStream in = new DataInputStream(socket.getInputStream())){
+            System.out.println("You are connected");
 
-            System.out.println("You were connected");
-
-            while (!socket.isOutputShutdown()){
-                if(br.ready()){
-                    String clientCommand = br.readLine();
-                    oos.writeUTF(clientCommand);
-                    oos.flush();
-                    if(clientCommand.equalsIgnoreCase("quit")){
-                        System.out.println("Client kill connections");
-                        break;
-                    }
-                    if(ois.read() > -1){
-                        System.out.println(ois.readUTF());
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (true){
+                            String str = in.readUTF();
+                            if (str.equals("/end")) {
+                                System.out.println("You were quit");
+                                break;
+                            }
+                            Server.serverPrintMessage(str, socket);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
-            }
+            }).start();
 
-        }catch (IOException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void clientPrintMessage (String msg, Socket socket){
+        try (DataOutputStream output = new DataOutputStream(socket.getOutputStream())){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        output.writeUTF("user message: " + msg);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

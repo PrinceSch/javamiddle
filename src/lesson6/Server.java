@@ -10,31 +10,58 @@ public class Server {
 
     private static int PORT = 8190;
 
-    public static void main (String[] args) throws InterruptedException{
-        try (ServerSocket server = new ServerSocket(PORT)){
-            Socket client = server.accept();
-            System.out.println("User connected");
-            DataOutputStream out = new DataOutputStream(client.getOutputStream());
-            DataInputStream in = new DataInputStream(client.getInputStream());
+    public static void main(String[] args) {
 
-            while (!client.isClosed()){
-                String entry = in.readUTF();
-                System.out.println("user message: " + entry);
-                if(entry.equalsIgnoreCase("quit")){
-                    System.out.println("Client initialize connections suicide ...");
-                    out.writeUTF("Server reply - "+entry + " - OK");
-                    out.flush();
-                    break;
-                }
-                out.writeUTF("Server: "+ entry);
-                out.flush();
+
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Server launched");
+
+
+            try (Socket socket = serverSocket.accept();
+                 DataInputStream in = new DataInputStream(socket.getInputStream())) {
+                System.out.println("User connected");
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            while (true) {
+                                String str = in.readUTF();
+                                if (str.equals("/end")) {
+                                    System.out.println("User disconnected");
+                                    break;
+                                }
+                                Client.clientPrintMessage(str, socket);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
             }
-            in.close();
-            out.close();
-            client.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+
+    static void serverPrintMessage(String msg, Socket socket) {
+
+        try (DataOutputStream output = new DataOutputStream(socket.getOutputStream())) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        output.writeUTF("user message: " + msg);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
