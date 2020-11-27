@@ -1,0 +1,38 @@
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.TextField?>
+<?import java.net.URL?>
+<BorderPane fx:controller="calc.CalculatorController"
+            xmlns:fx="http://javafx.com/fxml">
+
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <top>
+        <TextField fx:id="outputField" alignment="CENTER_RIGHT" promptText="0"/>
+    </top>
+
+    <center>
+        <GridPane alignment="CENTER" hgap="4" vgap="4">
+            <Button text="7" onAction="#onNumberClick" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <Button text="8" onAction="#onNumberClick" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Button text="9" onAction="#onNumberClick" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+            <Button text="DEL" onAction="#onDelClick" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+            <Button text="4" onAction="#onNumberClick" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Button text="5" onAction="#onNumberClick" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <Button text="6" onAction="#onNumberClick" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+            <Button text="X" onAction="#onOperatorClick" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+            <Button text="1" onAction="#onNumberClick" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <Button text="2" onAction="#onNumberClick" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <Button text="3" onAction="#onNumberClick" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+            <Button text="/" onAction="#onOperatorClick" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+            <Button text="-" onAction="#onOperatorClick" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Button text="0" onAction="#onNumberClick" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <Button text="+" onAction="#onOperatorClick" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+            <Button text="=" onAction="#onOperatorClick" GridPane.rowIndex="3" GridPane.columnIndex="3" fx:id="operBtn"/>
+        </GridPane>
+    </center>
+
+</BorderPane>
