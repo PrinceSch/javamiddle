@@ -1,7 +1,5 @@
 package server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,23 +7,25 @@ import java.util.List;
 import java.util.Vector;
 
 public class Server {
+
     private static int PORT = 8189;
-    List<ClientHandler> clients;
     ServerSocket server = null;
     Socket socket = null;
+    List<ClientHandler> clients;
+    private AuthService authService;
 
     public Server() {
-
-        clients = new Vector();
+        clients = new Vector<>();
+        authService = new SimpleAuthService();
 
         try {
             server = new ServerSocket(PORT);
-            System.out.println("Сервер запущен");
+            System.out.println("Server launched");
 
             while (true) {
                 socket = server.accept();
-                System.out.println("Клиент подключился");
-                clients.add(new ClientHandler(this,socket));
+                System.out.println("User connected");
+                new ClientHandler(this, socket);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,9 +38,36 @@ public class Server {
         }
     }
 
-    void broadCastMessage(String msg) {
+    void broadCastMsg(ClientHandler sender, String msg) {
+        String message = String.format("%s : %s", sender.getNickname(), msg);
         for (ClientHandler client : clients) {
-            client.sendMessage(msg+"\n");
+            client.sendMsg(message + "\n");
         }
     }
+
+    public void subscribe(ClientHandler clientHandler){
+        clients.add(clientHandler);
+    }
+
+    public void unsubscribe(ClientHandler clientHandler){
+        clients.remove(clientHandler);
+    }
+
+    public AuthService getAuthService(){
+        return authService;
+    }
+
+    void privateMessage (ClientHandler sender, String nick, String msg){
+        String message = String.format("From %s to %s: %s", sender.getNickname(), nick, msg);
+        for (ClientHandler client : clients) {
+            if (client.getNickname().equals(nick)){
+                client.sendMsg(message + "\n");
+                if(!client.equals(sender)){
+                    sender.sendMsg(message + "\n");
+                }
+                return;
+            }
+        }
+    }
+
 }
