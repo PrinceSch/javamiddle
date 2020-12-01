@@ -1,10 +1,17 @@
 package server;
 
 
+import client.Controller;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ClientHandler {
 
@@ -23,7 +30,12 @@ public class ClientHandler {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
-//          socket.setSoTimeout(5000); - обрыв соединения если нет действий
+            try {
+                socket.setSoTimeout(10000);
+            } catch (SocketException e){
+                server.unsubscribe(this);
+                socket.close();
+            }
 
             new Thread(() -> {
                 try {
@@ -34,9 +46,11 @@ public class ClientHandler {
                         if (str.startsWith("/auth")) {
                             String[] token = str.split("\\s");
                             String newNick = server.getAuthService().getNicknameByLoginAndPassword(token[1], token[2]);
+                            login = token[1];
 
                             if (newNick != null) {
                                 if(!server.isLoginAuthenticated(token[1])) {
+                                    socket.setSoTimeout(0);
                                     nickname = newNick;
                                     sendMsg("/authok " + nickname);
                                     server.subscribe(this);
