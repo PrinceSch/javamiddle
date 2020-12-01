@@ -29,13 +29,7 @@ public class ClientHandler {
             this.socket = socket;
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-
-            try {
-                socket.setSoTimeout(10000);
-            } catch (SocketException e){
-                server.unsubscribe(this);
-                socket.close();
-            }
+            socket.setSoTimeout(10000);
 
             new Thread(() -> {
                 try {
@@ -98,6 +92,8 @@ public class ClientHandler {
                             server.broadCastMsg(this, str);
                         }
                     }
+                } catch (SocketTimeoutException e){
+                    System.out.println("time out");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {

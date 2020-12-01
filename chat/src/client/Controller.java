@@ -154,8 +154,7 @@ public class Controller implements Initializable {
                 }
             }).start();
 
-        } catch (
-                IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
