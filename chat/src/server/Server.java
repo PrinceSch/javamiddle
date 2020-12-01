@@ -3,6 +3,8 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
@@ -39,7 +41,8 @@ public class Server {
     }
 
     void broadCastMsg(ClientHandler sender, String msg) {
-        String message = String.format("%s : %s", sender.getNickname(), msg);
+        SimpleDateFormat date = new SimpleDateFormat("HH:mm:ss");
+        String message = String.format("%s %s : %s", date.format(new Date()), sender.getNickname(), msg);
         for (ClientHandler client : clients) {
             client.sendMsg(message + "\n");
         }
@@ -47,10 +50,12 @@ public class Server {
 
     public void subscribe(ClientHandler clientHandler){
         clients.add(clientHandler);
+        broadClientList();
     }
 
     public void unsubscribe(ClientHandler clientHandler){
         clients.remove(clientHandler);
+        broadClientList();
     }
 
     public AuthService getAuthService(){
@@ -58,7 +63,8 @@ public class Server {
     }
 
     void privateMessage (ClientHandler sender, String nick, String msg){
-        String message = String.format("From %s to %s: %s", sender.getNickname(), nick, msg);
+        SimpleDateFormat date = new SimpleDateFormat("HH:mm:ss");
+        String message = String.format("%s From %s to %s: %s", date.format(new Date()), sender.getNickname(), nick, msg);
         for (ClientHandler client : clients) {
             if (client.getNickname().equals(nick)){
                 client.sendMsg(message + "\n");
@@ -70,4 +76,23 @@ public class Server {
         }
     }
 
+    public boolean isLoginAuthenticated(String login){
+        for (ClientHandler c: clients) {
+            if(c.getLogin().equals(login)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void broadClientList() {
+        StringBuilder sb = new StringBuilder("/clientList ");
+        for(ClientHandler c: clients){
+            sb.append(c.getNickname()).append(" ");
+        }
+        String msg = sb.toString();
+        for (ClientHandler c: clients){
+            c.sendMsg(msg);
+        }
+    }
 }

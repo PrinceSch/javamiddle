@@ -23,6 +23,8 @@ public class ClientHandler {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
+//          socket.setSoTimeout(5000); - обрыв соединения если нет действий
+
             new Thread(() -> {
                 try {
                     // цикл аутентификации
@@ -34,12 +36,29 @@ public class ClientHandler {
                             String newNick = server.getAuthService().getNicknameByLoginAndPassword(token[1], token[2]);
 
                             if (newNick != null) {
-                                nickname = newNick;
-                                sendMsg("/authok " + nickname);
-                                server.subscribe(this);
-                                break;
+                                if(!server.isLoginAuthenticated(token[1])) {
+                                    nickname = newNick;
+                                    sendMsg("/authok " + nickname);
+                                    server.subscribe(this);
+                                    break;
+                                }else{
+                                    sendMsg("This user logged already");
+                                }
                             } else {
                                 sendMsg("Incorrect login or password");
+                            }
+                        }
+                        if (str.startsWith("/reg")){
+                            String[] token = str.split("\\s");
+                            if(token.length < 4){
+                                continue;
+                            }
+                            boolean isRegistration = server.getAuthService()
+                                    .registration(token[1], token[2], token[3]);
+                            if(isRegistration){
+                                sendMsg("/regok");
+                            } else {
+                                sendMsg("/regno");
                             }
                         }
                     }
@@ -91,5 +110,9 @@ public class ClientHandler {
 
     public String getNickname() {
         return nickname;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }
