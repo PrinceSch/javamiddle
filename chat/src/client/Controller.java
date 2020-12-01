@@ -52,6 +52,7 @@ public class Controller implements Initializable {
         if (!authenticated) {
             nickname = "";
         }
+        textArea.clear();
         setTitle(nickname);
     }
 
@@ -89,14 +90,11 @@ public class Controller implements Initializable {
                             if (str.equals("/end")) {
                                 break;
                             }
-
-                            System.out.println("User: " + str);
                             textArea.appendText(str);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
-                        System.out.println("You were disconnected");
                         setAuthenticated(false);
                         try {
                             socket.close();
@@ -131,6 +129,7 @@ public class Controller implements Initializable {
             out.writeUTF(String.format("/auth %s %s", loginField.getText().trim().toLowerCase(),
                     passwordField.getText().trim()));
             passwordField.clear();
+            loginField.clear();
         } catch (IOException e) {
             e.printStackTrace();
         }

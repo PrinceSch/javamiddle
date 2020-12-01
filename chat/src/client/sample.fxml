@@ -14,7 +14,7 @@
         <Button text="auth" onAction="#tryToAuth" minWidth="50"/>
     </HBox>
 
-    <TextArea fx:id="textArea" VBox.vgrow="ALWAYS" editable="false"/>
+    <TextArea fx:id="textArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true"/>
 
     <HBox fx:id="msgPanel" visible="false" managed="true">
         <TextField fx:id="textField" promptText="input text" HBox.hgrow="ALWAYS"

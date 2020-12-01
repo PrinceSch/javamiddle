@@ -58,11 +58,14 @@ public class Server {
     }
 
     void privateMessage (ClientHandler sender, String nick, String msg){
-        String message = String.format("%s : %s", sender.getNickname(), msg);
+        String message = String.format("From %s to %s: %s", sender.getNickname(), nick, msg);
         for (ClientHandler client : clients) {
             if (client.getNickname().equals(nick)){
                 client.sendMsg(message + "\n");
-                sender.sendMsg("Private to " + client.getNickname()+ ": " + msg + "\n");
+                if(!client.equals(sender)){
+                    sender.sendMsg(message + "\n");
+                }
+                return;
             }
         }
     }

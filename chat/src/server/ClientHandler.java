@@ -13,6 +13,7 @@ public class ClientHandler {
     DataInputStream in;
     DataOutputStream out;
     private String nickname;
+    private String login;
 
 
     public ClientHandler(Server server, Socket socket) {
@@ -36,7 +37,6 @@ public class ClientHandler {
                                 nickname = newNick;
                                 sendMsg("/authok " + nickname);
                                 server.subscribe(this);
-                                System.out.println("User " + nickname + " connected");
                                 break;
                             } else {
                                 sendMsg("Incorrect login or password");
@@ -48,23 +48,26 @@ public class ClientHandler {
                     while (true) {
                         String str = in.readUTF();
 
-                        if (str.equals("/end")) {
-                            out.writeUTF("/end");
-                            break;
-                        }
+                        if(str.startsWith("/")){
+                            if (str.equals("/end")) {
+                                out.writeUTF("/end");
+                                break;
+                            }
+                            if (str.startsWith("/w")) {
+                                String[] prMsg = str.split("\\s+", 3);
+                                if (prMsg.length!=3){
+                                    continue;
+                                }
+                                server.privateMessage(this, prMsg[1], prMsg[2]);
+                            }
 
-                        if (str.startsWith("/w")) {
-                            String[] prMsg = str.split(" ", 3);
-                            server.privateMessage(this, prMsg[1], prMsg[2]);
                         } else {
                             server.broadCastMsg(this, str);
                         }
-
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
-                    System.out.println("User disconnected");
                     server.unsubscribe(this);
                     try {
                         socket.close();
